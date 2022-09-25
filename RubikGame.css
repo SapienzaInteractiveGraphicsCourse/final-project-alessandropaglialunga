@@ -1,0 +1,45 @@
+body{
+  margin-top: 0px; 
+  margin-bottom: 0px; 
+  margin-left: 0px; 
+  margin-right: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+  overflow: hidden;
+}
+canvas{
+	margin-top: 0px; 
+  margin-bottom: 0px; 
+  margin-left: 0px; 
+  margin-right: 0px;
+  padding-top: 0px;
+  padding-right: 0px;
+  padding-bottom: 0px;
+  padding-left: 0px;
+}
+input {
+  position: absolute;
+  z-index:1;
+  font: 1rem monospace;
+  font-weight: bold;
+  color: black;
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+img{
+  position: absolute;
+  z-index:1;
+}
+input[type=text]{
+  color: white;
+  text-align: center;
+  font: 1rem monospace;
+  font-weight: bold;
+  font-family: "Lucida Console", "Courier New", monospace;
+}
+canvas{
+  position:absolute;
+  background: url('Images/space_background.jpg');
+  background-size: cover;
+}
