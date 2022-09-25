@@ -20,11 +20,6 @@ function showHTMLElement(){
     document.getElementById("resetButton").hidden = false;
 	document.getElementById("timerText").hidden = false;
 	document.getElementById("numberOfMovesText").hidden = false;
-	document.getElementById("speedText").hidden = false;
-	document.getElementById("slowSpeedButton").hidden = false;
-	document.getElementById("moderateSpeedButton").hidden = false;
-	document.getElementById("fastSpeedButton").hidden = false;
-	document.getElementById("veryFastSpeedButton").hidden = false;
 }
 
 class RubikGame {
@@ -68,8 +63,6 @@ class RubikGame {
 	    this.timerMinutes = 0;
 	    this.timerSeconds = 0;
 	    this.intervalForTimer;
-	    this.FireworkObj = [];
-	    this.intervalForFireworks = 0;
 	    this.initialAngle;
 	    this.initialPhase();
 	    this.render();
@@ -227,7 +220,7 @@ RubikGame.prototype.shuffle = function(){
 	this.counterForShuffle += 1;
 	if(this.counterForShuffle == this.difficulties[this.currentDifficulty]){
 		clearInterval(this.intervalForShuffle);
-		for(var i = 0; i < 8; i++)
+		for(var i = 0; i < 17; i++)
 			this.buttons[i].style.border = this.buttons[i].parameters.border;
 		for(var i = 0; i < 10; i++)
 			this.buttons[i].disabled = false;
@@ -301,8 +294,9 @@ RubikGame.prototype.win = function(){
 	if(winFlag){
 		this.winAudio.play();
 		clearInterval(this.intervalForTimer);
-		for(var i = 0; i < 8; i++)
+		for(var i = 0; i < 17; i++)
 			this.buttons[i].hidden = true;
+		this.texts[2].hidden = true;
 		this.time = 0;
 		this.buttons[9].hidden = false;
 	}

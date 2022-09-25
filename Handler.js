@@ -59,6 +59,11 @@ Handler.prototype.buttons = function(){
 			game.buttons[i].hidden = false;
 			game.buttons[i].style.border = '1px solid rgba(128, 128, 128, 1)';
 		}
+		for(var i = 13; i < 17; i++){
+			game.buttons[i].hidden = false;
+			game.buttons[i].style.border = '1px solid rgba(128, 128, 128, 1)';
+		}
+		game.texts[2].hidden = false;
 		game.soundtrack.play();
 	});
 	game.buttons[9].addEventListener("click", function(event){ //Reset Button
@@ -70,6 +75,9 @@ Handler.prototype.buttons = function(){
 		game.buttons[10].hidden = false;
 		game.buttons[11].hidden = false;
 		game.buttons[12].hidden = false;
+		for(var i = 13; i < 17; i++)
+			game.buttons[i].hidden = true;
+		game.texts[2].hidden = true;
 		for(var i = 0; i < 8; i++)
 			game.buttons[i].hidden = true;
 		for(var i = 0; i < 10; i++)
