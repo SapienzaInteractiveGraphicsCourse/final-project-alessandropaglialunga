@@ -85,6 +85,7 @@ Handler.prototype.buttons = function(){
 		game.timerHours = -1;
 		game.timerMinutes = -1;
 		game.timerSeconds = -1;
+		clearInterval(game.intervalForTimer);
 		game.carryOnTimer();
 		game.time = 0;
 	    game.counterForShuffle = 0;
