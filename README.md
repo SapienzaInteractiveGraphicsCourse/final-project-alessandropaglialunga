@@ -1,2 +1,7 @@
-# final-project-alessandropaglialunga
-final-project-alessandropaglialunga created by GitHub Classroom
+# Rubik's Cube
+Final project for the Interactive Graphics course held by Prof. Marco Schaerf.
+
+# Play
+Web Demo: 
+
+
