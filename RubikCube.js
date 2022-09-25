@@ -1,7 +1,7 @@
 "use strict";
 
 class RubikCube {
-	constructor(gl, program, subcubeLength, numSubcubesPerLine, offsetBtwSubcubes, verticies, colors){
+	constructor(gl, program, subcubeLength, numSubcubesPerLine, offsetBtwSubcubes, verticies, colors, normals, textures){
 		this.gl = gl;
 		this.program = program;
 		this.subcubeLength = subcubeLength;
@@ -13,7 +13,9 @@ class RubikCube {
 		this.rotationOrientationFlag = false; //false for clockwise rotation; true for counterclockwise rotation
 		this.initilizeMatrices();
 		this.subcubeVerticies = verticies;
-		this.subcubeVertexColors = colors;
+		this.subcubeColors = colors;
+		this.subcubeNormals = normals;
+		this.subcubeTexCoords = textures;
 		this.loadWebGLBuffer();
 		this.rotationAxisPerFace = [vec3(0,0,1), vec3(0,1,0), vec3(1,0,0)];
 	}
@@ -70,19 +72,47 @@ RubikCube.prototype.loadWebGLBuffer = function(){
     var positionLoc = this.gl.getAttribLocation( this.program, "aPosition" );
     this.gl.vertexAttribPointer( positionLoc, 4, this.gl.FLOAT, false, 0, 0 );
     this.gl.enableVertexAttribArray( positionLoc );
-    
 
-    var subcubeVertexColorsBuffer = this.gl.createBuffer();
-    this.gl.bindBuffer( this.gl.ARRAY_BUFFER, subcubeVertexColorsBuffer );
-    this.gl.bufferData( this.gl.ARRAY_BUFFER, flatten(this.subcubeVertexColors), this.gl.STATIC_DRAW );
+    var subcubeColorsBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer( this.gl.ARRAY_BUFFER, subcubeColorsBuffer );
+    this.gl.bufferData( this.gl.ARRAY_BUFFER, flatten(this.subcubeColors), this.gl.STATIC_DRAW );
     var colorLoc = this.gl.getAttribLocation(this.program, "aColor");
     this.gl.vertexAttribPointer(colorLoc, 4, this.gl.FLOAT, false, 0, 0);
     this.gl.enableVertexAttribArray(colorLoc);
+
+    var subcubeNormalsBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, subcubeNormalsBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, flatten(this.subcubeNormals), this.gl.STATIC_DRAW);
+    var normalLoc = this.gl.getAttribLocation(this.program, "aNormal");
+    this.gl.vertexAttribPointer(normalLoc, 3, this.gl.FLOAT, false, 0, 0);
+    this.gl.enableVertexAttribArray(normalLoc);
+
+    var subcubeTexturesBuffer = this.gl.createBuffer();
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, subcubeTexturesBuffer);
+    this.gl.bufferData(this.gl.ARRAY_BUFFER, flatten(this.subcubeTexCoords), this.gl.STATIC_DRAW);
+    var texCoordLoc = this.gl.getAttribLocation(this.program, "aTexCoord");
+    this.gl.vertexAttribPointer(texCoordLoc, 2, this.gl.FLOAT, false, 0, 0);
+    this.gl.enableVertexAttribArray(texCoordLoc);
+
+    this.whiteWoodTexture = document.getElementById("whiteWoodTexture");
+    this.gl.uniform1i(this.gl.getUniformLocation(this.program, "uTextureMap"), 0);
+    this.configureTexture(this.whiteWoodTexture);
+}
+
+RubikCube.prototype.configureTexture = function(image){
+	var texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 64, 64, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST_MIPMAP_LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE );
+    this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE );
 }
 
 RubikCube.prototype.loadVerticesInformations = function(){
 	for(var i = 0; i < this.subcubes.length; i++)
-		this.subcubes[i].loadVerticesInformations(this.subcubeVerticies, this.subcubeVertexColors);
+		this.subcubes[i].loadVerticesInformations(this.subcubeVerticies, this.subcubeColors, this.subcubeNormals, this.subcubeTexCoords, this.whiteWoodTexture);
 }
 
 RubikCube.prototype.rotateFace = function(face, angleStep){

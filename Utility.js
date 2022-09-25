@@ -16,7 +16,7 @@ var generalCubeVerticies = [
 ];
 
 var generalCubeVertexColors = [
-    vec4(0.0, 0.0, 0.0, 1.0),  // black
+    vec4(0.8, 0.8, 0.8, 1.0),  // gray
     vec4(1.0, 0.0, 0.0, 1.0),  // red
     vec4(1.0, 1.0, 0.0, 1.0),  // yellow
     vec4(0.0, 1.0, 0.0, 1.0),  // green
@@ -26,11 +26,28 @@ var generalCubeVertexColors = [
     vec4(1.0, 1.0, 1.0, 1.0),  // white
 ];
 
-function quad(a, b, c, d, vertexBuffer, colorBuffer, colorIdx){
+var generalCubeTexCoords = [
+    vec2(0, 0),
+    vec2(0, 1),
+    vec2(1, 1),
+    vec2(1, 0)
+];
+
+function quad(a, b, c, d, vertexBuffer, colorBuffer, normalBuffer, textureBuffer, colorIdx){
 	vertexBuffer.push(generalCubeVerticies[a]);
     vertexBuffer.push(generalCubeVerticies[b]);
     vertexBuffer.push(generalCubeVerticies[c]);
     vertexBuffer.push(generalCubeVerticies[d]);
+
+    var t1 = subtract(generalCubeVerticies[b], generalCubeVerticies[a]);
+    var t2 = subtract(generalCubeVerticies[c], generalCubeVerticies[b]);
+    var normal = cross(t1, t2);
+    normal = vec3(normal);
+    for(var i = 0; i < 4; i++){
+        normalBuffer.push(normal);
+        textureBuffer.push(generalCubeTexCoords[i]);
+    }
+
     if(colorIdx == -1)
         for(var i = 0; i < 4; i++)
             colorBuffer.push(generalCubeVertexColors[a]);
@@ -38,5 +55,3 @@ function quad(a, b, c, d, vertexBuffer, colorBuffer, colorIdx){
         for(var i = 0; i < 4; i++)
             colorBuffer.push(generalCubeVertexColors[colorIdx]);
 }
-
-//const sleep = ms => new Promise(r => setTimeout(r, ms));

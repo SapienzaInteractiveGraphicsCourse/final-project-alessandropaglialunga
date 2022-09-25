@@ -6,12 +6,12 @@ class Camera {
 		this.program = program;
 		this.modelViewMatrixLoc = this.gl.getUniformLocation( this.program, "uModelViewMatrix" );
     	this.projectionMatrixLoc = this.gl.getUniformLocation( this.program, "uProjectionMatrix" );
-		this.radius = 5;
+		this.radius = 8;
         this.finalRadius = 5;
         this.initialRadius = 10;
 		this.at = vec3(0.0, 0.0, 0.0);
 		this.up = vec3(0.0, 1.0, 0.0);
-		this.anglePlaneYZ = 0*(Math.PI/180);
+		this.anglePlaneYZ = 30*(Math.PI/180);
 		this.anglePlaneXZ = 0*(Math.PI/180);
 		this.changePerseptionYZ = 1;
 		this.fovy = 45.0;
@@ -27,8 +27,9 @@ Camera.prototype.setModelViewAndProjection = function (){
     var z_eye = this.radius*Math.cos(this.anglePlaneYZ)*Math.sin(this.anglePlaneXZ);
     var y_eye = this.radius*Math.sin(this.anglePlaneYZ);
     var x_eye = this.radius*Math.cos(this.anglePlaneYZ)*Math.cos(this.anglePlaneXZ);
-    var eye = vec3(x_eye, y_eye, z_eye);
-    this.modelViewMatrix = lookAt(eye, this.at , this.up);
+    this.eye = vec3(x_eye, y_eye, z_eye);
+    this.eye4 = vec4(x_eye, y_eye, z_eye, 1.0);
+    this.modelViewMatrix = lookAt(this.eye, this.at , this.up);
     this.gl.uniformMatrix4fv(this.modelViewMatrixLoc, false, flatten(this.modelViewMatrix));
     this.projectionMatrix = perspective( this.fovy, this.aspect, this.near, this.far );
     this.gl.uniformMatrix4fv(this.projectionMatrixLoc, false, flatten(this.projectionMatrix));

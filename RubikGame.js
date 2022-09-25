@@ -8,6 +8,23 @@ window.onload = function init(){
 	var height = document.documentElement.scrollHeight;
 	document.body.style.height = height + 'px';
     var rubikGameObject = new RubikGame(canvas, gl, width, height);
+    setTimeout(showHTMLElement(), 1000);
+}
+
+function showHTMLElement(){
+	document.getElementById("startButton").hidden = false;
+    document.getElementById("easyButton").hidden = false;
+    document.getElementById("mediumButton").hidden = false;
+    document.getElementById("hardButton").hidden = false;
+    document.getElementById("audioIcon").hidden = false; 
+    document.getElementById("resetButton").hidden = false;
+	document.getElementById("timerText").hidden = false;
+	document.getElementById("numberOfMovesText").hidden = false;
+	document.getElementById("speedText").hidden = false;
+	document.getElementById("slowSpeedButton").hidden = false;
+	document.getElementById("moderateSpeedButton").hidden = false;
+	document.getElementById("fastSpeedButton").hidden = false;
+	document.getElementById("veryFastSpeedButton").hidden = false;
 }
 
 class RubikGame {
@@ -23,18 +40,24 @@ class RubikGame {
     	this.gl.useProgram( this.program );
     	this.verticies = [];
     	this.colors = [];
-	    this.RubikCubeObj = new RubikCube( this.gl, this.program, 0.39, 3, 0.0, this.verticies, this.colors);
+    	this.normals = [];
+    	this.textures = [];
+	    this.RubikCubeObj = new RubikCube( this.gl, this.program, 0.39, 3, 0.0, this.verticies, this.colors, this.normals, this.textures);
 	    this.CameraObj = new Camera( this.gl, this.program, this.aspect );
 	    this.CameraObj.handler(this);
 	    this.setButtons();
 	    this.setTexts();
 	    this.setImages();
 	    this.setAudio();
+	    this.velocities = [5, 10, 15, 90];
+	    this.currentVelocity=1;
+	    this.difficulties = [5,7,12];
+	    this.currentDifficulty = 0;
+	    this.waitToCheck = [400, 350, 300, 250];
 	    this.moves = 0;
 	    this.mute = false;
 	    this.HandlerObj = new Handler(this);
 	    this.HandlerObj.buttons();
-	    //this.BackgroundObj = new Background(this.gl, this.program, this.canvas.width, this.canvas.height, this.verticies, this.colors);
 
 	   	this.startGameFlag = false;
 	    this.initialPhaseFlag = true;
@@ -50,6 +73,7 @@ class RubikGame {
 	    this.initialAngle;
 	    this.initialPhase();
 	    this.render();
+	    this.setLighting();
 	}
 }
 
@@ -57,15 +81,15 @@ RubikGame.prototype.setButtons = function(){
 	this.buttons = [];
 	var buttonHeight = this.canvas.height/6;
 	var buttonWidth = this.canvas.width/8;
-	var ids = ["rotateBackFaceButton","rotateFrontFaceButton","rotateBottomFaceButton","rotateTopFaceButton","rotateLeftFaceButton","rotateRightFaceButton", "rotateClockwiseButton", "rotateCounterclockwiseButton", "startButton", "resetButton"];
-	var heights = [buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight/2,buttonHeight/2,buttonHeight/2, buttonHeight/2];
-	var widths = [buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth*2,buttonWidth*2,buttonWidth*2,buttonWidth*2];
-	var texts = ["BACK","FRONT","BOTTOM","TOP","LEFT","RIGHT","CLOCKWISE","COUNTERCLOCKWISE","START", "RESET"];
-	var opacities = [', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 1.0)',', 0.0)',', 0.0)',', 0.0)'];
-	var backgrounds = ['rgba(0, 0, 255','rgba(255, 0, 0','rgba(0, 255, 0','rgba(0, 255, 255','rgba(255, 0, 255','rgba(255, 255, 0', 'rgba(255, 255, 255', 'rgba(255, 255, 255', 'rgba(128, 0, 255', 'rgba(255, 0, 128'];
-	var borders = ['10px solid rgba(0, 0, 255, 1)','10px solid rgba(255, 0, 0, 1)','10px solid rgba(0, 255, 0, 1)','10px solid rgba(0, 255, 255, 1)','10px solid rgba(255, 0, 255, 1)','10px solid rgba(255, 255, 0, 1)', '5px solid rgba(255, 255, 255, 1)', '5px solid rgba(255, 255, 255, 1)', '5px solid rgba(128, 0, 255, 1)', '5px solid rgba(255, 0, 128, 1)'];
-	var topMargins = [this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height-heights[0]-this.canvas.height/10,this.canvas.height/5-heights[6]/2,this.canvas.height/5-heights[7]/2, this.canvas.height/4-heights[8]/2, this.canvas.height-heights[9]*2 ];
-	var leftMargins = [this.canvas.width/2-3*widths[0],this.canvas.width/2-2*widths[0],this.canvas.width/2-widths[0],this.canvas.width/2,this.canvas.width/2+widths[0],this.canvas.width/2+2*widths[0], this.canvas.width/2-widths[7], this.canvas.width/2, /*this.canvas.width/2-widths[8]/2*/ 0.0, this.canvas.width/2-widths[8]/2];
+	var ids = ["rotateBackFaceButton","rotateFrontFaceButton","rotateBottomFaceButton","rotateTopFaceButton","rotateLeftFaceButton","rotateRightFaceButton", "rotateClockwiseButton", "rotateCounterclockwiseButton", "startButton", "resetButton", "easyButton", "mediumButton", "hardButton","slowSpeedButton", "moderateSpeedButton", "fastSpeedButton", "veryFastSpeedButton"];
+	var heights = [buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight,buttonHeight/2,buttonHeight/2,buttonHeight/2, buttonHeight/2, buttonHeight, buttonHeight, buttonHeight, buttonHeight/2, buttonHeight/2, buttonHeight/2, buttonHeight/2];
+	var widths = [buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth,buttonWidth*2,buttonWidth*2,buttonWidth*2,buttonWidth*2, buttonHeight, buttonHeight, buttonHeight, buttonHeight, buttonHeight, buttonHeight, buttonHeight];
+	var texts = ["BACK","FRONT","BOTTOM","TOP","LEFT","RIGHT","CLOCKWISE","COUNTERCLOCKWISE","START", "RESET", "EASY", "MEDIUM", "HARD", "SLOW", "MODERATE", "FAST", "VERY FAST"];
+	var opacities = [', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 0.0)',', 1.0)',', 0.0)',', 0.0)',', 0.0)',', 1.0)',', 0.0)',', 0.0)', ', 0.0)', ', 1.0)',', 0.0)' ,', 0.0)'];
+	var backgrounds = ['rgba(0, 0, 255','rgba(255, 0, 0','rgba(0, 255, 0','rgba(0, 255, 255','rgba(255, 0, 255','rgba(255, 255, 0', 'rgba(255, 255, 255', 'rgba(255, 255, 255', 'rgba(128, 0, 255', 'rgba(255, 0, 128', 'rgba(0, 225, 0','rgba(225, 225, 0','rgba(225, 0, 0', 'rgba(225, 255, 0', 'rgba(225, 127, 0', 'rgba(225, 64, 0', 'rgba(225, 32, 0'];
+	var borders = ['5px solid rgba(0, 0, 255, 1)','5px solid rgba(255, 0, 0, 1)','5px solid rgba(0, 255, 0, 1)','5px solid rgba(0, 255, 255, 1)','5px solid rgba(255, 0, 255, 1)','5px solid rgba(255, 255, 0, 1)', '5px solid rgba(255, 255, 255, 1)', '5px solid rgba(255, 255, 255, 1)', '5px solid rgba(128, 0, 255, 1)', '1px solid rgba(128, 128, 128, 1)', '5px solid rgba(0, 125, 0, 1)','5px solid rgba(125, 125, 0, 1)','5px solid rgba(125, 0, 0, 1)', '5px solid rgba(255, 255, 0, 1)', '5px solid rgba(255, 127, 0, 1)', '5px solid rgba(255, 64, 0, 1)', '5px solid rgba(255, 32, 0, 1)'];
+	var topMargins = [this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height-heights[0]-this.canvas.height/20,this.canvas.height/5-heights[6]/2,this.canvas.height/5-heights[7]/2, this.canvas.height-heights[0]-this.canvas.height/20, this.canvas.height/2-heights[9]/2, this.canvas.height/4-heights[10]/2, this.canvas.height/4-heights[11]/2, this.canvas.height/4-heights[12]/2, this.canvas.height/2-heights[13], this.canvas.height/2-heights[13], this.canvas.height/2, this.canvas.height/2];
+	var leftMargins = [this.canvas.width/2-3*widths[0],this.canvas.width/2-2*widths[0],this.canvas.width/2-widths[0],this.canvas.width/2,this.canvas.width/2+widths[0],this.canvas.width/2+2*widths[0], this.canvas.width/2-widths[7], this.canvas.width/2, this.canvas.width/2-widths[8]/2, this.canvas.width-widths[8] - this.canvas.width/20, this.canvas.width/2-widths[11]/2-widths[11]*2, this.canvas.width/2-widths[11]/2, this.canvas.width/2-widths[11]/2+widths[11]*2,this.canvas.width/40,this.canvas.width/40+widths[14],this.canvas.width/40, this.canvas.width/40+widths[16]];
 
 	for(var i = 0; i < ids.length; i++){
 		this.buttons[i] = document.getElementById(ids[i]);
@@ -84,14 +108,14 @@ RubikGame.prototype.setTexts = function(){
 	this.texts = [];
 	var textHeight = this.canvas.height/10;
 	var textWidth = this.canvas.width/3;
-	var ids = ["timerText", "numberOfMovesText"];
-	var heights = [textHeight, textHeight];
-	var widths = [textWidth, textWidth];
-	var opacities = [', 0.0)', ', 0.0)'];
-	var backgrounds = ['rgba(255, 255, 255', 'rgba(255, 255, 255'];
-	var borders = ['3px solid rgba(255, 0, 0, 1)', '3px solid rgba(255, 0, 0, 1)'];
-	var topMargins = [this.canvas.height/100, this.canvas.height/100];
-	var leftMargins = [this.canvas.width/2 - widths[0] - 5, 5 + this.canvas.width/2];
+	var ids = ["timerText", "numberOfMovesText", "speedText"];
+	var heights = [textHeight, textHeight, textHeight/3];
+	var widths = [textWidth, textWidth, textWidth/2.5];
+	var opacities = [', 0.0)', ', 0.0)',', 0.0)'];
+	var backgrounds = ['rgba(255, 255, 255', 'rgba(255, 255, 255', 'rgba(255, 255, 255'];
+	var borders = ['3px solid rgba(255, 0, 0, 1)', '3px solid rgba(255, 0, 0, 1)', '3px solid rgba(255, 0, 0, 1)'];
+	var topMargins = [this.canvas.height/100, this.canvas.height/100, this.canvas.height/2 - heights[2]/2 - this.canvas.height/8];
+	var leftMargins = [this.canvas.width/2 - widths[0] - 5, 5 + this.canvas.width/2, this.canvas.height/6+this.canvas.width/40-widths[2]/2];
 	for(var i = 0; i < ids.length; i++){
 		this.texts[i] = document.getElementById(ids[i]);
 		this.texts[i].style.height = heights[i] + 'px';
@@ -127,16 +151,49 @@ RubikGame.prototype.setAudio = function(){
     this.changeDirectionAudio = document.getElementById("changeDirectionAudio");
     this.changeDirectionAudio.volume = 0.5;
     this.soundtrack = document.getElementById("soundtrack");
-    this.soundtrack.volume = 0.1;
+    this.soundtrack.volume = 0.0;//0.1;
     this.soundtrack.loop = true;
     this.winAudio = document.getElementById("winAudio");
     this.winAudio.volume = 1;
 }
 
+RubikGame.prototype.setLighting = function(){
+	var openingAngleLoc;
+	var openingAngle = 90; 
+	var lightDirectionLoc;
+	var lightDirection = vec4(0.0, -1.0, 0.0, 0.0);
+	var lightAttenuationLoc;
+	var lightAttenuation = 10.00;
+	this.lightPosition = vec4(0.0, -2.0, 0.0, 1.0);
+	var lightAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+	var lightDiffuse = vec4(.9, .9, .9, 1.0);
+	var lightSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+    this.lightPositionLoc = this.gl.getUniformLocation(this.program, "uLightPosition");
+    var lightAttenuationLoc = this.gl.getUniformLocation(this.program, "uLightAttenuation");
+    var lightDirectionLoc = this.gl.getUniformLocation(this.program, "uLightDirection");
+    var openingAngleLoc = this.gl.getUniformLocation(this.program, "uCosOfOpeningAngle");
+    var materialAmbient = vec4(.9, .9, .9, 1.0);
+	var materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
+	var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+	var materialShininess = 80;
+    var ambientProduct = mult(lightAmbient, materialAmbient);
+    var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+    var specularProduct = mult(lightSpecular, materialSpecular);
+    this.gl.uniform4fv(this.gl.getUniformLocation(this.program, "uAmbientProduct"), ambientProduct);
+    this.gl.uniform4fv(this.gl.getUniformLocation(this.program, "uDiffuseProduct"), diffuseProduct);
+    this.gl.uniform4fv(this.gl.getUniformLocation(this.program, "uSpecularProduct"), specularProduct);
+    this.gl.uniform1f(this.gl.getUniformLocation(this.program, "uShininess"), materialShininess);
+    this.gl.uniform4fv(this.lightPositionLoc, this.lightPosition);
+    this.gl.uniform4fv(lightDirectionLoc, lightDirection);
+    this.gl.uniform1f(lightAttenuationLoc, lightAttenuation);
+    this.gl.uniform1f(openingAngleLoc, Math.cos(openingAngle));
+}
+
 RubikGame.prototype.render = function () {
 	this.gl.clear( this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	this.CameraObj.setModelViewAndProjection();
-	//this.BackgroundObj.render();
+	this.lightPosition = this.CameraObj.eye4;
+	this.gl.uniform4fv(this.lightPositionLoc, this.lightPosition);
 	this.gl.uniformMatrix4fv(this.CameraObj.projectionMatrixLoc, false, flatten(this.CameraObj.projectionMatrix));
 	this.RubikCubeObj.render(this.CameraObj.modelViewMatrix, this.CameraObj.modelViewMatrixLoc);
 	requestAnimationFrame(this.render.bind(this));
@@ -144,7 +201,7 @@ RubikGame.prototype.render = function () {
 
 RubikGame.prototype.initialPhase = function(){
 	if(!this.startGameFlag){
-		//this.CameraObj.anglePlaneXZ = (90 + this.time)*(Math.PI/180);
+		this.CameraObj.anglePlaneXZ = (90 + this.time)*(Math.PI/180);
 	}else{
 		this.CameraObj.radius -= 0.1;
 		this.CameraObj.anglePlaneXZ = (90 + this.time)*(Math.PI/180);
@@ -168,10 +225,13 @@ RubikGame.prototype.shuffle = function(){
 		document.getElementById("faceRotationAudio").play();
 	}
 	this.counterForShuffle += 1;
-	if(this.counterForShuffle == 1){
+	if(this.counterForShuffle == 1){//this.difficulties[this.currentDifficulty]){
 		clearInterval(this.intervalForShuffle);
 		for(var i = 0; i < 8; i++)
 			this.buttons[i].style.border = this.buttons[i].parameters.border;
+		for(var i = 0; i < 10; i++)
+			this.buttons[i].disabled = false;
+		this.buttons[9].style.border = '5px solid rgba(255, 0, 128, 1)';
 		this.carryOnTimer();
 		this.intervalForTimer = setInterval(this.carryOnTimer.bind(this), 1000);
 	}
@@ -245,15 +305,5 @@ RubikGame.prototype.win = function(){
 			this.buttons[i].hidden = true;
 		this.time = 0;
 		this.buttons[9].hidden = false;
-		//this.initialAngle = this.CameraObj.anglePlaneXZ*180/Math.PI;
-		//this.intervalForFireworks = setInterval(this.fireworks.bind(this), 10);
 	}
 }
-
-/*RubikGame.prototype.fireworks = function(){
-	this.CameraObj.anglePlaneXZ = (this.initialAngle + this.time)*(Math.PI/180);
-	this.time += 1;
-	this.FireworkObj.push(new Firework());
-	for(var i = 0; i < this.FireworkObj; i++)
-		this.FireworkObj[i].move(this.time);
-}*/

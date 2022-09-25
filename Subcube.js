@@ -18,7 +18,8 @@ class Subcube {
 	}
 }
 
-Subcube.prototype.loadVerticesInformations = function(vertexBuffer, colorBuffer){
+Subcube.prototype.loadVerticesInformations = function(vertexBuffer, colorBuffer, normalBuffer, textureBuffer, whiteWoodTexture){
+    this.whiteWoodTexture = whiteWoodTexture;
     var vertexIndices = Array();
     vertexIndices[0] = [1, 0, 3, 2]; //FRONT
     vertexIndices[1] = [2, 3, 7, 6]; //LEFT
@@ -27,7 +28,7 @@ Subcube.prototype.loadVerticesInformations = function(vertexBuffer, colorBuffer)
     vertexIndices[4] = [4, 5, 6, 7]; //BACK
     vertexIndices[5] = [5, 4, 0, 1]; //RIGHT
     for(var i = 0; i < 6; i++)
-        quad(vertexIndices[i][0], vertexIndices[i][1], vertexIndices[i][2], vertexIndices[i][3], vertexBuffer, colorBuffer, 0);
+        quad(vertexIndices[i][0], vertexIndices[i][1], vertexIndices[i][2], vertexIndices[i][3], vertexBuffer, colorBuffer, normalBuffer, textureBuffer, 0);
     for(var j = 0; j < this.indicesOfVisibleFaces.length; j++){
         var subcubeFaceIdx = this.indicesOfVisibleFaces[j];
         var x = this.Xpos, y = this.Ypos, z = this.Zpos;
@@ -42,7 +43,7 @@ Subcube.prototype.loadVerticesInformations = function(vertexBuffer, colorBuffer)
         }
         this.coloredShims.push(new ColoredShim(this.gl, this.program, x, y, z, this.coloredShimLength, coloredShimHeight, vertexIndices[subcubeFaceIdx][0], axis));
         for(var i = 0; i < 6; i++)
-            quad(vertexIndices[i][0], vertexIndices[i][1], vertexIndices[i][2], vertexIndices[i][3], vertexBuffer, colorBuffer, vertexIndices[subcubeFaceIdx][0]);
+            quad(vertexIndices[i][0], vertexIndices[i][1], vertexIndices[i][2], vertexIndices[i][3], vertexBuffer, colorBuffer, normalBuffer, textureBuffer, vertexIndices[subcubeFaceIdx][0]);
    }
 }
 
@@ -81,6 +82,17 @@ Subcube.prototype.render = function(modelViewMatrix, modelViewMatrixLoc){
         for(var j = 0; j < 6; j++)
             this.gl.drawArrays(this.gl.TRIANGLE_FAN, (this.webglBufferIdx+1+i)*24 + 4*j, 4);
     }
+}
+
+Subcube.prototype.configureTexture = function(image){
+    var texture = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, texture);
+    this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, 512, 512, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, image);
+    this.gl.generateMipmap(this.gl.TEXTURE_2D);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST_MIPMAP_LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE );
+    this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE );
 }
 
 Subcube.prototype.animation = function(){
