@@ -26,14 +26,14 @@ class RubikGame {
 	    this.RubikCubeObj = new RubikCube( this.gl, this.program, 0.39, 3, 0.0, this.verticies, this.colors);
 	    this.CameraObj = new Camera( this.gl, this.program, this.aspect );
 	    this.CameraObj.handler(this);
-	    /*this.setButtons();
+	    this.setButtons();
 	    this.setTexts();
 	    this.setImages();
-	    this.setAudio();*/
+	    this.setAudio();
 	    this.moves = 0;
 	    this.mute = false;
-	    /*this.HandlerObj = new Handler(this);
-	    this.HandlerObj.buttons();*/
+	    this.HandlerObj = new Handler(this);
+	    this.HandlerObj.buttons();
 	    //this.BackgroundObj = new Background(this.gl, this.program, this.canvas.width, this.canvas.height, this.verticies, this.colors);
 
 	   	this.startGameFlag = false;
@@ -127,7 +127,7 @@ RubikGame.prototype.setAudio = function(){
     this.changeDirectionAudio = document.getElementById("changeDirectionAudio");
     this.changeDirectionAudio.volume = 0.5;
     this.soundtrack = document.getElementById("soundtrack");
-    this.soundtrack.volume = 0.0; //0.1;
+    this.soundtrack.volume = 0.1;
     this.soundtrack.loop = true;
     this.winAudio = document.getElementById("winAudio");
     this.winAudio.volume = 1;
