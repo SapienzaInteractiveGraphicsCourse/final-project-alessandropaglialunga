@@ -225,7 +225,7 @@ RubikGame.prototype.shuffle = function(){
 		document.getElementById("faceRotationAudio").play();
 	}
 	this.counterForShuffle += 1;
-	if(this.counterForShuffle == 1){//this.difficulties[this.currentDifficulty]){
+	if(this.counterForShuffle == this.difficulties[this.currentDifficulty]){
 		clearInterval(this.intervalForShuffle);
 		for(var i = 0; i < 8; i++)
 			this.buttons[i].style.border = this.buttons[i].parameters.border;
