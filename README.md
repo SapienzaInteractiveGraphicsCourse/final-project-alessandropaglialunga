@@ -1,2 +1,5 @@
 # Rubik's Cube
-[Web Demo](https://sapienzainteractivegraphicscourse.github.io/final-project-alessandropaglialunga/)
+Final project for Interactive Graphics course held by Prof. Marco Schaerf
+
+#Play
+Try: [Originally called the Magic Cube](https://sapienzainteractivegraphicscourse.github.io/final-project-alessandropaglialunga/)
