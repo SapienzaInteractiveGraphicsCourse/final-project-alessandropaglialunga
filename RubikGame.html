@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="RubikGame.css">
+	<link rel="shortcut icon" href="#">
+	<title>Rubik's Cube Game</title>
+</head>
+<body>
+	<!--<input type="text" value="T I M E R   0 0 : 0 0 : 0 0" id="timerText">
+	<input type="text" value="# M O V E S   0 0 0 0" id="numberOfMovesText">
+	<input type="button" value="BACK" id="rotateBackFaceButton" hidden>
+	<input type="button" value="FRONT" id="rotateFrontFaceButton" hidden>
+	<input type="button" value="BOTTOM" id="rotateBottomFaceButton" hidden>
+	<input type="button" value="TOP" id="rotateTopFaceButton" hidden>
+	<input type="button" value="LEFT" id="rotateLeftFaceButton" hidden>
+	<input type="button" value="RIGHT" id="rotateRightFaceButton" hidden>
+	<input type="button" value="CLOCKWISE" id="rotateClockwiseButton" hidden>
+	<input type="button" value="COUNTERCLOCKWISE" id="rotateCounterclockwiseButton" hidden>
+	<input type="button" value="START" id="startButton">
+	<input type="button" value="RESET" id="resetButton" hidden>
+
+	<img src="/Images/volume.png" id="audioIcon">
+	<img src="/Images/volume-mute.png" id="noAudioIcon" hidden>-->
+
+<!--Sound from www.kenney.nl -->
+	<audio src="/Audio/bookFlip2.ogg" id="faceRotationAudio"></audio>
+	<audio src="/Audio/chop.ogg" id="changeDirectionAudio"></audio>
+<!--Sound from Zapsplat.com -->
+	<audio src="/Audio/music_zapsplat_space_trivia.mp3" id="soundtrack"></audio>
+<!--Sound from mixkit.co -->
+	<audio src="/Audio/mixkit-cheering-crowd-loud-whistle-610.wav" id="winAudio"></audio>
+
+	<canvas id="gl-canvas" width="512" height="512"></canvas>
+	<script type="x-shader/x-vertex" id="vertex-shader">
+		#version 300 es
+		in vec4 aPosition;
+		in vec4 aColor;
+		out vec4 vColor;
+		uniform mat4 uModelViewMatrix;
+		uniform mat4 uProjectionMatrix;
+
+		void main(){
+			gl_Position = uProjectionMatrix * uModelViewMatrix * aPosition;
+			vColor = aColor;
+		}
+	</script>
+	<script type="x-shader/x-fragment" id="fragment-shader">
+		#version 300 es
+        precision mediump float;
+        in vec4 vColor;
+        out vec4 fColor;
+
+		void main(){
+			fColor = vColor;	
+		}
+	</script>
+    <script type="text/javascript" src = "Common/initShaders.js" ></script>
+    <script type="text/javascript" src = "Common/MVnew.js"       ></script>
+    <script type="text/javascript" src = "Background.js"         ></script>
+    <script type="text/javascript" src = "Camera.js"             ></script>
+    <script type="text/javascript" src = "Handler.js"            ></script>
+    <script type="text/javascript" src = "Utility.js"            ></script>
+    <script type="text/javascript" src = "Subcube.js"            ></script>
+    <script type="text/javascript" src = "RubikCube.js"          ></script>
+	<script type="text/javascript" src = "RubikGame.js"          ></script>
+	<script type="text/javascript" src = "ColoredShim.js"		 ></script>
+</body>
+</html>
